@@ -5,7 +5,7 @@ public class ProjectMain {
         String dirForOutputFiles="Results";
 
         ProblemManager problems = new ProblemManager();
-        problems.readFromFile("sch10.txt",0.2);
+        problems.readFromFile("sch10.txt",0.4);
         problems.generateSchedulesForFile(dirForOutputFiles);
 
 

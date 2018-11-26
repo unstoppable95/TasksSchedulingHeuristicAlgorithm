@@ -59,6 +59,15 @@ public class AcoAdministrator {
             }
 
             //mutacja schedules
+            int scheduleSize=schedules.size();
+            for (int k=0; k<scheduleSize; k++){
+                int idxJobForSwap=new Random().nextInt(p.getNumberOfJobs());
+                int idxJobForSwap2=new Random().nextInt(p.getNumberOfJobs());
+                List<Job> swapList = new ArrayList<>((List<Job>)schedules.get(k).getKey());
+                Collections.swap(swapList, idxJobForSwap, idxJobForSwap2);
+                schedules.add(new Pair(swapList,p.calculateGoalFunction(p.getR(),swapList)));
+
+            }
 
 
             //turniej (ile_ma_zostac_najlepszych_z_schedules)
