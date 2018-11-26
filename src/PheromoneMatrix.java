@@ -9,7 +9,6 @@ public class PheromoneMatrix {
     public PheromoneMatrix(int n){
         this.size=n;
         this.matrix=new double [size][size];
-        //Arrays.fill(matrix, 0.0);
     }
 
     public void fillMatrix(List<Job> schedule,double value){

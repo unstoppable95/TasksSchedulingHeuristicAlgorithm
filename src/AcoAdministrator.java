@@ -1,14 +1,19 @@
 import javafx.util.Pair;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class AcoAdministrator {
     private int numOfRandSchedules=100;
+    private int numOfGenerateSchedules=50;
     private List<Pair> schedules = new ArrayList<>();
+    private long executionTime =  3000L;
+
     public void metaheuristic(Problem p){
+
+        long startTime = System.currentTimeMillis();
+        int currentIteration=0;
+        int probabilityOfRandom=100;
+        int decreaseProbability=2;
 
         for (int i =0 ; i<numOfRandSchedules ; i++){
             List<Job> newJobList = new ArrayList<>(p.getJobList());
@@ -30,6 +35,40 @@ public class AcoAdministrator {
         }
 
         myMatrix.displayContent();
+
+        //main loop of metaheuristic
+        while(System.currentTimeMillis() - startTime < executionTime )
+        {
+            currentIteration+=1;
+            probabilityOfRandom = (currentIteration %2 ==0) ? probabilityOfRandom-=decreaseProbability : probabilityOfRandom;
+            probabilityOfRandom=(probabilityOfRandom <0 ) ? 0 : probabilityOfRandom;
+
+            for (int i =0 ; i<numOfGenerateSchedules ; i++){
+
+                if(Math.random() < probabilityOfRandom/100 ) {
+                    List<Job> newJobList = new ArrayList<>(p.getJobList());
+                    Collections.shuffle(newJobList);
+                    schedules.add(new Pair(newJobList,p.calculateGoalFunction(p.getR(),newJobList)));
+                }else {
+
+                    int startJobNumber = new Random().nextInt(p.getNumberOfJobs()) + 1;
+
+                }
+            }
+
+            //mutacja
+
+
+            //turniej (ile_ma_zostac_najlepszych_z_schedules)
+
+            //uzupelnienie macierzy feromonowej
+
+
+            //wygladzanie macierzy feromowej
+
+            //parowanie macierzy feromonowej
+
+        }
 
     }
 
