@@ -3,10 +3,11 @@ import javafx.util.Pair;
 import java.util.*;
 
 public class AcoAdministrator {
+    //metaheuristic parametres
     private int numOfRandSchedules=100;
     private int numOfGenerateSchedules=50;
+    private long executionTime =  10000L;
     private List<Pair> schedules = new ArrayList<>();
-    private long executionTime =  3000L;
 
     public void metaheuristic(Problem p){
 
@@ -15,14 +16,15 @@ public class AcoAdministrator {
         int probabilityOfRandom=100;
         int decreaseProbability=2;
 
+        //generate random schedules
         for (int i =0 ; i<numOfRandSchedules ; i++){
             List<Job> newJobList = new ArrayList<>(p.getJobList());
             Collections.shuffle(newJobList);
             schedules.add(new Pair(newJobList,p.calculateGoalFunction(p.getR(),newJobList)));
         }
 
-        Pair best= Collections.max(schedules,new goalFunctionCompare());
         //set current best schedule
+        Pair best= Collections.max(schedules,new goalFunctionCompare());
         p.setJobList((List<Job>)best.getKey());
         p.setGoalFunction(p.calculateGoalFunction(p.getR(),p.getJobList()));
 
@@ -34,8 +36,6 @@ public class AcoAdministrator {
             myMatrix.fillMatrix((List<Job>)schedules.get(x).getKey(),value);
         }
 
-        myMatrix.displayContent();
-
         //main loop of metaheuristic
         while(System.currentTimeMillis() - startTime < executionTime )
         {
@@ -44,25 +44,37 @@ public class AcoAdministrator {
             probabilityOfRandom=(probabilityOfRandom <0 ) ? 0 : probabilityOfRandom;
 
             for (int i =0 ; i<numOfGenerateSchedules ; i++){
-
                 if(Math.random() < probabilityOfRandom/100 ) {
                     List<Job> newJobList = new ArrayList<>(p.getJobList());
                     Collections.shuffle(newJobList);
                     schedules.add(new Pair(newJobList,p.calculateGoalFunction(p.getR(),newJobList)));
                 }else {
 
-                    int startJobNumber = new Random().nextInt(p.getNumberOfJobs()) + 1;
+                    int startJobNumber = new Random().nextInt(p.getNumberOfJobs());
+                    List<Integer> jobsOrderPheromoneMatrix = new ArrayList<>(myMatrix.order(startJobNumber));
+                    List<Job> jobsInOrder = new ArrayList<>(makeScheduleWithOrder(jobsOrderPheromoneMatrix,p.getJobList()));
+                    schedules.add(new Pair(jobsInOrder,p.calculateGoalFunction(p.getR(),jobsInOrder)));
 
                 }
             }
 
-            //mutacja
+            //mutacja schedules
 
 
             //turniej (ile_ma_zostac_najlepszych_z_schedules)
 
-            //uzupelnienie macierzy feromonowej
 
+            //zapisanie najlepszego
+            //set current best schedule
+            Pair bestFinish= Collections.max(schedules,new goalFunctionCompare());
+            p.setJobList((List<Job>)bestFinish.getKey());
+            p.setGoalFunction(p.calculateGoalFunction(p.getR(),p.getJobList()));
+
+            //uzupelnienie macierzy feromonowej schedules
+            for (int x=0;x<schedules.size();x++){
+                double value =  p.getGoalFunction()/Double.parseDouble(schedules.get(x).getValue().toString());
+                myMatrix.fillMatrix((List<Job>)schedules.get(x).getKey(),value);
+            }
 
             //wygladzanie macierzy feromowej
 
@@ -70,6 +82,20 @@ public class AcoAdministrator {
 
         }
 
+    }
+
+
+    private List<Job> makeScheduleWithOrder(List<Integer> order,List<Job> jobs){
+        List<Job> jobsInOrder = new ArrayList<>();
+        for (Integer i : order) {
+            for (Job j : jobs) {
+                if (j.getPosition() == i) {
+                    jobsInOrder.add(j);
+                }
+            }
+        }
+
+        return jobsInOrder;
     }
 
 

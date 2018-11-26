@@ -6,7 +6,7 @@ public class ProjectMain {
 
         ProblemManager problems = new ProblemManager();
         problems.readFromFile("sch10.txt",0.2);
-        problems.generateSchedulesForFile(dirForOutputFiles,0);
+        problems.generateSchedulesForFile(dirForOutputFiles);
 
 
         SolutionChecker sol = new SolutionChecker();
