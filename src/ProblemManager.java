@@ -19,6 +19,7 @@ public class ProblemManager {
             aco.metaheuristic(p);
             System.out.println("Uszeregowanie dla k=" + (problemList.indexOf(p)+1));
             System.out.println(p);
+            System.out.println("Czas metaheurystyki: " + aco.getTotalTimeAlgorithm() + " seconds");
             manager.saveInstance(String.valueOf(p.getNumberOfJobs()),String.valueOf(problemList.indexOf(p)+1),String.valueOf(Math.round(p.getH()*10)),(int)p.getGoalFunction(),p,String.valueOf(p.getR()), directory);
             }
         }
@@ -29,6 +30,7 @@ public class ProblemManager {
             aco.metaheuristic(p);
             System.out.println("Uszeregowanie dla k=" + (problemList.indexOf(p)+1));
             System.out.println(p);
+            System.out.println("Czas metaheurystyki: " + aco.getTotalTimeAlgorithm() + " seconds");
             manager.saveInstance(String.valueOf(p.getNumberOfJobs()),String.valueOf(problemList.indexOf(p)+1),String.valueOf(Math.round(p.getH()*10)),(int)p.getGoalFunction(),p,String.valueOf(p.getR()), directory);
         }
     }

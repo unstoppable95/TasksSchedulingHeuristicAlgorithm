@@ -5,11 +5,12 @@ public class AcoAdministrator {
     //metaheuristic parametres
     private int numOfRandSchedules=20;
     private int numOfGenerateSchedules=40;
-    private long executionTime =  40000L;
+    private long executionTime =  10000L;
     private double evaporationCoefficient=0.09;
     private double smoothCoefficient=9.0;
     private int numberOfWinnersTournament=30;
-
+    private int numberOfIterationWithoutImprovement=10;
+    private int totalTimeAlgorithm=0;
     private List<Pair> schedules = new ArrayList<>();
 
     public void metaheuristic(Problem p){
@@ -74,8 +75,14 @@ public class AcoAdministrator {
 
             //set current best schedule
             Pair bestFinish= Collections.max(schedules,new goalFunctionCompare());
-            p.setJobList((List<Job>)bestFinish.getKey());
-            p.setGoalFunction(p.calculateGoalFunction(p.getR(),p.getJobList()));
+            if( p.getGoalFunction()<=p.calculateGoalFunction(p.getR(),(List<Job>)bestFinish.getKey()) ){
+                numberOfIterationWithoutImprovement-=1;
+            }
+            else{
+                p.setJobList((List<Job>)bestFinish.getKey());
+                p.setGoalFunction(p.calculateGoalFunction(p.getR(),p.getJobList()));
+                numberOfIterationWithoutImprovement=10;
+            }
 
             //fill pheromone matrix after tournament and mutation
             for (int x=0;x<schedules.size();x++){
@@ -88,7 +95,14 @@ public class AcoAdministrator {
 
             //evaporation of pheromone matrix
             myMatrix.evaporateMatrix(evaporationCoefficient);
+
+            //check number of iterations without improvement in a row
+            if (numberOfIterationWithoutImprovement<=0)   break;
+
         }
+
+        long totalTime=System.currentTimeMillis()-startTime;
+        this.totalTimeAlgorithm=(int)totalTime/1000;
 
     }
 
@@ -113,4 +127,7 @@ public class AcoAdministrator {
         }
     }
 
+    public int getTotalTimeAlgorithm() {
+        return totalTimeAlgorithm;
+    }
 }
