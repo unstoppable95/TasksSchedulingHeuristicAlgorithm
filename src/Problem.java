@@ -25,10 +25,6 @@ public class Problem {
         this.goalFunction = goalFunction;
     }
 
-//    public void generateSchedule() {
-//        ScheduleGenerator myScheduler = new ScheduleGenerator(this,h,d);
-//        myScheduler.makeSchedule();
-//    }
 
     public int calculateGoalFunction(int r,List<Job> jobList) {
         List<Integer> endTimeJob = new ArrayList<>();

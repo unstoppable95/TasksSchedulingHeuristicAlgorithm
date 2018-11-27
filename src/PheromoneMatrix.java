@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -19,7 +18,6 @@ public class PheromoneMatrix {
 
         }
     }
-
 
     public void displayContent() {
         for (int i=0;i<size;i++){
@@ -95,14 +93,11 @@ public class PheromoneMatrix {
 
     }
 
-
     public void evaporateMatrix ( double evaporationCoefficient){
         for (int i =0;i<size;i++)
             for (int j=0;j<size ; j++)
                 matrix[i][j]=matrix[i][j]*(1-evaporationCoefficient);
     }
-
-
 
     public void smoothMatrix( double smoothCoefficient){
         for (int i=0; i<size; i++) {

@@ -12,16 +12,14 @@ public class ProblemManager {
 
     public void generateSchedulesForFile (String directory , Integer...K){
 
-        Integer k = K.length > 0 ? K[0] : -1;
+        Integer k = K.length > 0 ? K[0]-1 : -1;
         if ( k==-1){
-            //all k in files
         for (Problem p : problemList) {
             AcoAdministrator aco = new AcoAdministrator();
             aco.metaheuristic(p);
             System.out.println("Uszeregowanie dla k=" + (problemList.indexOf(p)+1));
             System.out.println(p);
             manager.saveInstance(String.valueOf(p.getNumberOfJobs()),String.valueOf(problemList.indexOf(p)+1),String.valueOf(Math.round(p.getH()*10)),(int)p.getGoalFunction(),p,String.valueOf(p.getR()), directory);
-
             }
         }
         else {
