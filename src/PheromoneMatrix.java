@@ -37,19 +37,19 @@ public class PheromoneMatrix {
         used.add(startJobNumber);
         order.add(startJobNumber);
 
-        boolean[] usedTask = new boolean[this.matrix.length];
+        boolean[] usedTask = new boolean[size];
         usedTask[startJobNumber] = true;
 
         double suma;
 
-        double[][] matrixTmp = new double[this.matrix.length][this.matrix.length];
+        double[][] matrixTmp = new double[size][size];
         int lastTask = startJobNumber;
         int numberOfChoosen = 1;
 
-        for(int i=0; i<this.matrix.length; i++){
+        for(int i=0; i<size; i++){
             suma = 0.0;
-            for(int j=0;j<this.matrix.length; j++){
-                suma+=this.matrix[i][j]+1;
+            for(int j=0;j<size; j++){
+                suma+=matrix[i][j]+1;
                 matrixTmp[i][j]=suma;
             }
         }
@@ -58,13 +58,13 @@ public class PheromoneMatrix {
         double x;
         double randomed;
 
-        while(numberOfChoosen <= this.matrix.length){
-            x = matrixTmp[lastTask][this.matrix.length - 1];
+        while(numberOfChoosen <= size){
+            x = matrixTmp[lastTask][size - 1];
             iter++;
             if(iter > 50){
                 iter = 0;
                 numberOfChoosen++;
-                for(int i=0;i<this.matrix.length;i++){
+                for(int i=0;i<size;i++){
                     if(!usedTask[i]){
                         used.add(i);
                         usedTask[i]=true;
@@ -77,7 +77,7 @@ public class PheromoneMatrix {
             else{
                 Random generator = new Random();
                 randomed = generator.nextInt()*x;
-                for(int i=0;i<this.matrix.length;i++){
+                for(int i=0;i<size;i++){
                     if(!usedTask[i] && matrixTmp[lastTask][i]>(double)randomed){
                         used.add(i);
                         numberOfChoosen++;
@@ -94,4 +94,33 @@ public class PheromoneMatrix {
         return order;
 
     }
+
+
+    public void evaporateMatrix ( double evaporationCoefficient){
+        for (int i =0;i<size;i++)
+            for (int j=0;j<size ; j++)
+                matrix[i][j]=matrix[i][j]*(1-evaporationCoefficient);
+    }
+
+
+
+    public void smoothMatrix( double smoothCoefficient){
+        for (int i=0; i<size; i++) {
+            double min=matrix[0][i];
+            for (int j = 0; j < size; j++) {
+                if(matrix[i][j] <min ) min=matrix[i][j];
+            }
+         if(min<=0) min=0.00001;
+            for(int j=0; j<size; j++) {
+                if(matrix[i][j]>0) {
+                    matrix[i][j]=min*(1*(Math.log10(matrix[i][j]/min)/Math.log10(smoothCoefficient)));
+                } else {
+                    matrix[i][j]=min*(1*(Math.log10(0.00001/min)/Math.log10(smoothCoefficient)));
+                }
+            }
+
+        }
+
+    }
+
 }

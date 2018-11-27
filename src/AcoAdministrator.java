@@ -4,9 +4,9 @@ import java.util.*;
 
 public class AcoAdministrator {
     //metaheuristic parametres
-    private int numOfRandSchedules=100;
-    private int numOfGenerateSchedules=50;
-    private long executionTime =  10000L;
+    private int numOfRandSchedules=20;
+    private int numOfGenerateSchedules=40;
+    private long executionTime =  40000L;
     private List<Pair> schedules = new ArrayList<>();
 
     public void metaheuristic(Problem p){
@@ -71,6 +71,8 @@ public class AcoAdministrator {
 
 
             //turniej (ile_ma_zostac_najlepszych_z_schedules)
+            Collections.sort(schedules,new goalFunctionCompare());
+            schedules.subList(0, schedules.size()-30).clear();
 
 
             //zapisanie najlepszego
@@ -86,9 +88,9 @@ public class AcoAdministrator {
             }
 
             //wygladzanie macierzy feromowej
-
+            myMatrix.smoothMatrix(9.0);
             //parowanie macierzy feromonowej
-
+           myMatrix.evaporateMatrix(0.09);
         }
 
     }
@@ -103,10 +105,8 @@ public class AcoAdministrator {
                 }
             }
         }
-
         return jobsInOrder;
     }
-
 
 
     private class goalFunctionCompare implements Comparator<Pair> {
@@ -116,4 +116,5 @@ public class AcoAdministrator {
             else return 0;
         }
     }
+
 }
