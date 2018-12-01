@@ -1,15 +1,14 @@
-import javafx.util.Pair;
 import java.util.*;
 
 public class AcoAdministrator {
     //metaheuristic parametres
     private int numOfRandSchedules=1;
-    private int numOfGenerateSchedules=1;
+    private int numOfGenerateSchedules=30;
     private long executionTime =  5000L;
     private double evaporationCoefficient=0.09;
     private double smoothCoefficient=9.0;
     private int numberOfWinnersTournament=1;
-    private int numberOfIterationWithoutImprovement=1000;
+    private int numberOfIterationWithoutImprovement=50;
     private int totalTimeAlgorithm=0;
 
     private List<Schedule> schedules = new ArrayList<>();
@@ -67,14 +66,13 @@ public class AcoAdministrator {
             //mutation of schedules
             int scheduleSize=schedules.size();
             for (int k=0; k<scheduleSize; k++){
-                int idxJobForSwap=new Random().nextInt(p.getNumberOfJobs());
-                int idxJobForSwap2=new Random().nextInt(p.getNumberOfJobs());
+               // int idxJobForSwap=new Random().nextInt(p.getNumberOfJobs());
+                //int idxJobForSwap2=new Random().nextInt(p.getNumberOfJobs());
+                //List<Job> swapList = new ArrayList<>(schedules.get(k).jobList);
+                //Collections.swap(swapList, idxJobForSwap, idxJobForSwap2);
 
-                List<Job> swapList = new ArrayList<>(schedules.get(k).jobList);
-
-                Collections.swap(swapList, idxJobForSwap, idxJobForSwap2);
-                Schedule tmpSchedule=new ScheduleBasic(swapList,p.getD(),0);
-
+                Mutation mut = new Mutation(schedules.get(k).jobList);
+                Schedule tmpSchedule=new ScheduleBasic(mut.simpleSwap(),p.getD(),0);
                 schedules.add(tmpSchedule);
 
             }
@@ -92,7 +90,7 @@ public class AcoAdministrator {
                 p.setJobList(bestMetaheuristic.jobList);
                 p.setR(bestMetaheuristic.r);
                 p.setGoalFunction(bestMetaheuristic.goalFunction);
-                numberOfIterationWithoutImprovement=10;
+                numberOfIterationWithoutImprovement=50;
             }
 
             //fill pheromone matrix after tournament and mutation
@@ -108,7 +106,7 @@ public class AcoAdministrator {
             myMatrix.evaporateMatrix(evaporationCoefficient);
 
             //check number of iterations without improvement in a row
-//            if (numberOfIterationWithoutImprovement<=0)   break;
+        if (numberOfIterationWithoutImprovement<=0)   break;
 
         }
 
@@ -117,7 +115,7 @@ public class AcoAdministrator {
 
     }
 
-    private List<Job> makeScheduleWithOrder(List<Integer> order,List<Job> jobs){
+    private List<Job> makeScheduleWithOrder(List<Integer> order, List<Job> jobs){
         List<Job> jobsInOrder = new ArrayList<>();
         for (Integer i : order) {
             for (Job j : jobs) {

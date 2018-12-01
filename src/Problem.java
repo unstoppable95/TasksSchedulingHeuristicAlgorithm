@@ -23,14 +23,11 @@ public class Problem {
         this.sumP = calculateSumP();
         this.d=(int) Math.floor(sumP * h);
         this.r=0;
-       // this.goalFunction=calculateGoalFunction(r,jobList);
     }
 
     public void setGoalFunction(double goalFunction) {
         this.goalFunction = goalFunction;
     }
-
-
 
 
     private int calculateSumP() {
@@ -72,6 +69,5 @@ public class Problem {
     public List<Job> getJobList() {
         return jobList;
     }
-
 
 }

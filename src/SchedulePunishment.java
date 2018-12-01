@@ -6,7 +6,7 @@ import java.util.List;
 public class SchedulePunishment extends Schedule {
 
 
-    public SchedulePunishment(List<Job> jobList,int d, int r){
+    public SchedulePunishment(List<Job> jobList, int d, int r){
         this.jobList=new ArrayList<>(jobList);
         this.d=d;
         this.r=r;

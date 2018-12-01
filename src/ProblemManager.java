@@ -40,7 +40,6 @@ public class ProblemManager {
     }
 
 
-
     public void generateSchedulesForFile ( Integer...K){
 
         Integer k = K.length > 0 ? K[0]-1 : -1;
