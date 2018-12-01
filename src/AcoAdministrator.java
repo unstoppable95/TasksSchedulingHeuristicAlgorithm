@@ -74,6 +74,7 @@ public class AcoAdministrator {
 
                 Collections.swap(swapList, idxJobForSwap, idxJobForSwap2);
                 Schedule tmpSchedule=new ScheduleBasic(swapList,p.getD(),0);
+
                 schedules.add(tmpSchedule);
 
             }
@@ -83,14 +84,14 @@ public class AcoAdministrator {
             tournament.makeCompetition(numberOfWinnersTournament);
 
             //set current best schedule
-            Schedule bestFinish= Collections.max(schedules,new goalFunctionCompare());
-            if( p.getGoalFunction()<=bestFinish.goalFunction){
+            Schedule bestMetaheuristic= Collections.max(schedules,new goalFunctionCompare());
+            if( p.getGoalFunction()<=bestMetaheuristic.goalFunction){
                 numberOfIterationWithoutImprovement-=1;
             }
             else{
-                p.setJobList(bestFinish.jobList);
-                p.setR(best.r);
-                p.setGoalFunction(best.goalFunction);
+                p.setJobList(bestMetaheuristic.jobList);
+                p.setR(bestMetaheuristic.r);
+                p.setGoalFunction(bestMetaheuristic.goalFunction);
                 numberOfIterationWithoutImprovement=10;
             }
 
@@ -111,7 +112,6 @@ public class AcoAdministrator {
 
         }
 
-        p.setGoalFunction(p.calculateGoalFunction(p.getR(),p.getJobList()));
         long totalTime=System.currentTimeMillis()-startTime;
         this.totalTimeAlgorithm=(int)totalTime/1000;
 

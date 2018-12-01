@@ -23,7 +23,7 @@ public class Problem {
         this.sumP = calculateSumP();
         this.d=(int) Math.floor(sumP * h);
         this.r=0;
-        this.goalFunction=calculateGoalFunction(r,jobList);
+       // this.goalFunction=calculateGoalFunction(r,jobList);
     }
 
     public void setGoalFunction(double goalFunction) {
@@ -31,20 +31,7 @@ public class Problem {
     }
 
 
-    public int calculateGoalFunction(int r,List<Job> jobList) {
-        List<Integer> endTimeJob = new ArrayList<>();
-        int currentTime = r;
-        int result = 0;
-        for (Job j : jobList) {
-            int jobEndTime = currentTime + j.getP();
-            endTimeJob.add(jobEndTime);
-            currentTime = currentTime + j.getP();
-        }
-        for (int i = 0; i < endTimeJob.size(); i++) {
-            result += jobList.get(i).getA() * Math.max(d - endTimeJob.get(i), 0) + jobList.get(i).getB() * Math.max(endTimeJob.get(i) - d, 0);
-        }
-        return result;
-    }
+
 
     private int calculateSumP() {
         for (Job j : jobList) {

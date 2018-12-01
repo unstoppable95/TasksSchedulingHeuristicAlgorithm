@@ -28,9 +28,7 @@ public class SolutionChecker {
         }
 
         Problem p= new Problem(n,h,solutionJobs);
-        p.setGoalFunction(p.calculateGoalFunction(r,p.getJobList()));
-
-
+        p.setGoalFunction(new ScheduleBasic(p.getJobList(),p.getD(),p.getR()).calculateGoalFunction(p.getR(),p.getJobList()));
         double goalFuntionCheck=p.getGoalFunction();
 
         if(goalFunction!=goalFuntionCheck) System.out.println("Wyniki w pliku " + solutionName.split("/")[1] + " się nie zgadzają");
