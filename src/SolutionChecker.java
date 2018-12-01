@@ -26,9 +26,13 @@ public class SolutionChecker {
         for (int i=4;i<content.size();i++){
             solutionJobs.add(new Job(Integer.parseInt(content.get(i)[0]), Integer.parseInt(content.get(i)[1]), Integer.parseInt(content.get(i)[2])));
         }
+
         Problem p= new Problem(n,h,solutionJobs);
         p.setGoalFunction(p.calculateGoalFunction(r,p.getJobList()));
+
+
         double goalFuntionCheck=p.getGoalFunction();
+
         if(goalFunction!=goalFuntionCheck) System.out.println("Wyniki w pliku " + solutionName.split("/")[1] + " się nie zgadzają");
     }
 

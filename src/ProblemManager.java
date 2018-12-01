@@ -1,16 +1,47 @@
 import java.util.ArrayList;
+import java.util.List;
 
 public class ProblemManager {
 
-    private ArrayList<Problem> problemList = new ArrayList<>();
+    private ArrayList<Problem> problemList;
     private FileManager manager = new FileManager();
+    private String problemsDirectory;
+    private String outputDirectory;
 
-
-    public void readFromFile(String fileName,double h){
-        problemList= manager.loadProblemData(fileName,h);
+    public ProblemManager(String inputDir,String resultDir){
+        this.problemsDirectory=inputDir;
+        this.outputDirectory=resultDir;
     }
 
-    public void generateSchedulesForFile (String directory , Integer...K){
+    public void readFromFile(){
+        //all files, all h
+            List<String> inputFiles=manager.getFilesNames(problemsDirectory);
+            double[] tabH = {0.2,0.4,0.6,0.8};
+            for (String file :inputFiles){
+                for(double h :tabH){
+                    problemList= new ArrayList<>(manager.loadProblemData(file,h));
+                    generateSchedulesForFile();
+                }
+            }
+    }
+
+    public void readFromFile(double h,int n){
+        //one file, all k , specify h
+        String file = problemsDirectory +"/" + "sch" + Integer.toString(n) + ".txt";
+        problemList= new ArrayList<>(manager.loadProblemData(file,h));
+        generateSchedulesForFile();
+    }
+
+    public void readFromFile(double h,int n,int k){
+        //one file, all k , specify h
+        String file = problemsDirectory +"/" + "sch" + Integer.toString(n) + ".txt";
+        problemList= new ArrayList<>(manager.loadProblemData(file,h));
+        generateSchedulesForFile(k);
+    }
+
+
+
+    public void generateSchedulesForFile ( Integer...K){
 
         Integer k = K.length > 0 ? K[0]-1 : -1;
         if ( k==-1){
@@ -20,7 +51,7 @@ public class ProblemManager {
             System.out.println("Uszeregowanie dla k=" + (problemList.indexOf(p)+1));
             System.out.println(p);
             System.out.println("Czas metaheurystyki: " + aco.getTotalTimeAlgorithm() + " seconds");
-            manager.saveInstance(String.valueOf(p.getNumberOfJobs()),String.valueOf(problemList.indexOf(p)+1),String.valueOf(Math.round(p.getH()*10)),(int)p.getGoalFunction(),p,String.valueOf(p.getR()), directory);
+            manager.saveInstance(String.valueOf(p.getNumberOfJobs()),String.valueOf(problemList.indexOf(p)+1),String.valueOf(Math.round(p.getH()*10)),(int)p.getGoalFunction(),p,String.valueOf(p.getR()), outputDirectory);
             }
         }
         else {
@@ -31,7 +62,7 @@ public class ProblemManager {
             System.out.println("Uszeregowanie dla k=" + (problemList.indexOf(p)+1));
             System.out.println(p);
             System.out.println("Czas metaheurystyki: " + aco.getTotalTimeAlgorithm() + " seconds");
-            manager.saveInstance(String.valueOf(p.getNumberOfJobs()),String.valueOf(problemList.indexOf(p)+1),String.valueOf(Math.round(p.getH()*10)),(int)p.getGoalFunction(),p,String.valueOf(p.getR()), directory);
+            manager.saveInstance(String.valueOf(p.getNumberOfJobs()),String.valueOf(problemList.indexOf(p)+1),String.valueOf(Math.round(p.getH()*10)),(int)p.getGoalFunction(),p,String.valueOf(p.getR()), outputDirectory);
         }
     }
 }

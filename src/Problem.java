@@ -7,17 +7,22 @@ public class Problem {
     private int numberOfJobs;
     private double h;
     private int sumP ;
-    private double goalFunction=0;
-    private int r=0;
+    private double goalFunction;
+    private int r;
     private int d;
 
-    public Problem(int x,double h,List<Job> jobList)
+    public int getD() {
+        return d;
+    }
+
+    public Problem(int x, double h, List<Job> jobList)
     {
         this.jobList=jobList;
         this.numberOfJobs=x;
         this.h=h;
         this.sumP = calculateSumP();
         this.d=(int) Math.floor(sumP * h);
+        this.r=0;
         this.goalFunction=calculateGoalFunction(r,jobList);
     }
 

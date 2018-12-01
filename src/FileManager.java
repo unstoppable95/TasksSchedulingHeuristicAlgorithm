@@ -9,7 +9,7 @@ public  class FileManager {
     public ArrayList<Problem> loadProblemData(String fileName,double h){
         ArrayList<Problem> listProblems=new ArrayList<>();
         try{
-            File file =new File("ProblemFiles/"+fileName);
+            File file =new File(fileName);
             Scanner scanner = new Scanner(file);
             int numOfProblems = Integer.parseInt(scanner.nextLine().replace(" ", ""));
             for (int i = 0; i < numOfProblems; i++) {

@@ -2,14 +2,14 @@
 public class ProjectMain {
 
     public static void main(String[] args){
-        String dirForOutputFiles="Results";
+        String outputDir="Results";
+        String inputDir="ProblemFiles";
 
-        ProblemManager problems = new ProblemManager();
-        problems.readFromFile("sch500.txt",0.6);
-        problems.generateSchedulesForFile(dirForOutputFiles);
+        ProblemManager problems = new ProblemManager(inputDir,outputDir);
+        problems.readFromFile(0.2,10,1);
 
         SolutionChecker sol = new SolutionChecker();
-        sol.checkSolutions(sol.getFiles(dirForOutputFiles));
+        sol.checkSolutions(sol.getFiles(outputDir));
 
     }
 }
