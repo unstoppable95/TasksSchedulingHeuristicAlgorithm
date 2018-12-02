@@ -25,5 +25,21 @@ public abstract class Schedule {
         }
         return result;
     }
+    public void calculateR(){
+        int r = 0;
+        int r_best = this.r;
+        int f_best = calculateGoalFunction(r_best, jobList);
 
+        while (r<=d) {
+            r++;
+            int f_tmp = calculateGoalFunction(r, jobList);
+            if (f_tmp < f_best) {
+                f_best = f_tmp;
+                r_best = r;
+            }
+        }
+
+        this.r = r_best;
+        this.goalFunction = f_best;
+    }
 }

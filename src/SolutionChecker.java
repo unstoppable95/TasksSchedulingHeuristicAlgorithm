@@ -27,11 +27,16 @@ public class SolutionChecker {
             solutionJobs.add(new Job(Integer.parseInt(content.get(i)[0]), Integer.parseInt(content.get(i)[1]), Integer.parseInt(content.get(i)[2])));
         }
 
-        Problem p= new Problem(n,h,solutionJobs);
+        Problem p= new Problem(n,h,solutionJobs,r);
         p.setGoalFunction(new ScheduleBasic(p.getJobList(),p.getD(),p.getR()).calculateGoalFunction(p.getR(),p.getJobList()));
+
+
         double goalFuntionCheck=p.getGoalFunction();
 
-        if(goalFunction!=goalFuntionCheck) System.out.println("Wyniki w pliku " + solutionName.split("/")[1] + " się nie zgadzają");
+        if(goalFunction!=goalFuntionCheck){
+            System.out.println("Wyniki w pliku " + solutionName.split("/")[1] + " się nie zgadzają");
+            System.out.println("W pliku: " + goalFunction + " policzone: " + p.getGoalFunction());
+        }
     }
 
 }

@@ -25,6 +25,15 @@ public class Problem {
         this.r=0;
     }
 
+    public Problem(int x, double h, List<Job> jobList , int r )
+    {
+        this.jobList=jobList;
+        this.numberOfJobs=x;
+        this.h=h;
+        this.sumP = calculateSumP();
+        this.d=(int) Math.floor(sumP * h);
+        this.r=r;
+    }
     public void setGoalFunction(double goalFunction) {
         this.goalFunction = goalFunction;
     }
