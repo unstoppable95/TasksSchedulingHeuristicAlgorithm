@@ -1,4 +1,4 @@
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Vector;
 
@@ -22,9 +22,9 @@ public class SolutionChecker {
         double goalFunction = Double.parseDouble(content.get(1)[0]);
         int n = Integer.parseInt(content.get(2)[0]);
         int r = Integer.parseInt(content.get(3)[0]);
-        List<Job> solutionJobs = new ArrayList<>();
+        Job [] solutionJobs = new Job[n];
         for (int i=4;i<content.size();i++){
-            solutionJobs.add(new Job(Integer.parseInt(content.get(i)[0]), Integer.parseInt(content.get(i)[1]), Integer.parseInt(content.get(i)[2])));
+            solutionJobs[i-4]=new Job(Integer.parseInt(content.get(i)[0]), Integer.parseInt(content.get(i)[1]), Integer.parseInt(content.get(i)[2]));
         }
 
         Problem p= new Problem(n,h,solutionJobs,r);

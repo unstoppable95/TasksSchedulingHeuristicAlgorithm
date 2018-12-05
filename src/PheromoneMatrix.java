@@ -12,9 +12,9 @@ public class PheromoneMatrix {
         this.matrix=new double [size][size];
     }
 
-    public void fillMatrix(List<Job> schedule, double value){
+    public void fillMatrix(Job [] schedule, double value){
         for(int i=0;i<size-1;i++){
-            matrix[schedule.get(i).getPosition()][schedule.get(i+1).getPosition()]+=value;
+            matrix[schedule[i].getPosition()][schedule[i+1].getPosition()]+=value;
 
         }
     }

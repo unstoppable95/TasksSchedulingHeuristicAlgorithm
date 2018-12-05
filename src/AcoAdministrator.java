@@ -2,27 +2,28 @@ import java.util.*;
 
 public class AcoAdministrator {
     //metaheuristic parametres
-    private int numOfRandSchedules=1;
-    private int numOfGenerateSchedules=30;
+    private int numOfRandSchedules=10;
+    private int numOfGenerateSchedules=20;
     private long executionTime =  30000L;
     private double evaporationCoefficient=0.09;
     private double smoothCoefficient=9.0;
-    private int numberOfWinnersTournament=1;
+    private int numberOfWinnersTournament=10;
     private int numberOfIterationWithoutImprovement=50000;
     private int totalTimeAlgorithm=0;
 
-    private List<Schedule> schedules = new ArrayList<>();
+    private LinkedList<Schedule> schedules = new LinkedList<>();
 
     public void metaheuristic(Problem p){
 
         long startTime = System.currentTimeMillis();
         int currentIteration=0;
         int probabilityOfRandom=100;
-        int decreaseProbability=2;
+        int decreaseProbability=10;
+        int d = p.getD();
 
         //generate random schedules
         for (int i =0 ; i<numOfRandSchedules ; i++){
-            Schedule tmpSchedule=new SchedulePunishment(p.getJobList(),p.getD(),p.getR());
+            Schedule tmpSchedule=new SchedulePunishment(p.getJobList(),d,0);
             tmpSchedule.makeSchedule();
             tmpSchedule.calculateR();
             schedules.add(tmpSchedule);
@@ -35,6 +36,7 @@ public class AcoAdministrator {
         p.setR(best.r);
         p.setGoalFunction(best.goalFunction);
 
+
         //fill pheromone matrix
         PheromoneMatrix myMatrix = new PheromoneMatrix(p.getNumberOfJobs());
         for (int x=0;x<schedules.size();x++){
@@ -45,63 +47,73 @@ public class AcoAdministrator {
         //main loop of metaheuristic
         while(System.currentTimeMillis() - startTime < executionTime )
         {
+            System.out.println(currentIteration );
 
             currentIteration+=1;
             probabilityOfRandom = (currentIteration %2 ==0) ? probabilityOfRandom-decreaseProbability : probabilityOfRandom;
             probabilityOfRandom=(probabilityOfRandom <0 ) ? 0 : probabilityOfRandom;
+            Schedule tmpSchedule;
+            Schedule tmpSchedule2;
+            Schedule tmpSchedule3;
+            Mutation mut;
+            double value;
+            Tournament tournament;
 
             for (int i =0 ; i<numOfGenerateSchedules ; i++){
                 if(Math.random() < probabilityOfRandom/100 ) {
-                    Schedule tmpSchedule=new SchedulePunishment(p.getJobList(),p.getD(),p.getR());
+                    tmpSchedule=new SchedulePunishment(p.getJobList(),d,0);
                     tmpSchedule.makeSchedule();
                     tmpSchedule.calculateR();
                     schedules.add(tmpSchedule);
+
+
                 }else {
                     int startJobNumber = new Random().nextInt(p.getNumberOfJobs());
                     List<Integer> jobsOrderPheromoneMatrix = new ArrayList<>(myMatrix.order(startJobNumber));
-                    List<Job> jobsInOrder = new ArrayList<>(makeScheduleWithOrder(jobsOrderPheromoneMatrix,p.getJobList()));
+                    Job [] jobsInOrder = makeScheduleWithOrder(jobsOrderPheromoneMatrix,p.getJobList(),p.getNumberOfJobs());
 
-                    Schedule tmpSchedule=new ScheduleBasic(jobsInOrder,p.getD(),0);
+                    tmpSchedule=new ScheduleBasic(jobsInOrder,d,0);
                     tmpSchedule.calculateR();
                     schedules.add(tmpSchedule);
+
                 }
             }
 
             //mutation of schedules
             int scheduleSize=schedules.size();
             for (int k=0; k<scheduleSize; k++){
-                //int idxJobForSwap=new Random().nextInt(p.getNumberOfJobs());
-                //int idxJobForSwap2=new Random().nextInt(p.getNumberOfJobs());
-                //List<Job> swapList = new ArrayList<>(schedules.get(k).jobList);
-                //Collections.swap(swapList, idxJobForSwap, idxJobForSwap2);
-                for(int i=0; i<5; i++){
-                    Mutation mut = new Mutation(schedules.get(k));
-                    Schedule tmpSchedule=new ScheduleBasic(mut.simpleSwap(),p.getD(),0);
+                mut = new Mutation(schedules.get(k));
+                for(int i=0; i<3; i++){
+
+                    tmpSchedule=new ScheduleBasic(mut.simpleSwap(),d,0);
                     tmpSchedule.calculateR();
                     schedules.add(tmpSchedule);
 
-                    Schedule tmpSchedule2=new ScheduleBasic(mut.maxABSwap(),p.getD(),0);
+                    tmpSchedule2=new ScheduleBasic(mut.maxABSwap(),d,0);
                     tmpSchedule2.calculateR();
                     schedules.add(tmpSchedule2);
 
-                    Schedule tmpSchedule3=new ScheduleBasic(mut.minABSwap(),p.getD(),0);
+                    tmpSchedule3=new ScheduleBasic(mut.minABSwap(),d,0);
                     tmpSchedule3.calculateR();
                     schedules.add(tmpSchedule3);
+
                 }
             }
 
             //tournament - leave only number of winners
-            Tournament tournament = new Tournament(schedules);
+            tournament = new Tournament(schedules);
             tournament.makeCompetition(numberOfWinnersTournament);
 
             //set current best schedule
             Schedule bestMetaheuristic= Collections.max(schedules,new goalFunctionCompare());
             bestMetaheuristic.calculateR();
+
             if( p.getGoalFunction()==bestMetaheuristic.goalFunction){
                 numberOfIterationWithoutImprovement-=1;
             }
             else{
                 if(p.getGoalFunction()>=bestMetaheuristic.goalFunction){
+
                     p.setJobList(bestMetaheuristic.jobList);
                     p.setR(bestMetaheuristic.r);
                     p.setGoalFunction(bestMetaheuristic.goalFunction);
@@ -111,7 +123,7 @@ public class AcoAdministrator {
 
             //fill pheromone matrix after tournament and mutation
             for (int x=0;x<schedules.size();x++){
-                double value =  p.getGoalFunction()/schedules.get(x).goalFunction;
+                value =  p.getGoalFunction()/schedules.get(x).goalFunction;
                 myMatrix.fillMatrix(schedules.get(x).jobList,value);
             }
 
@@ -131,12 +143,14 @@ public class AcoAdministrator {
 
     }
 
-    private List<Job> makeScheduleWithOrder(List<Integer> order, List<Job> jobs){
-        List<Job> jobsInOrder = new ArrayList<>();
+    private Job [] makeScheduleWithOrder(List<Integer> order, Job[] jobs,int size){
+        Job [] jobsInOrder = new Job[size];
+        int tmp=0;
         for (Integer i : order) {
             for (Job j : jobs) {
                 if (j.getPosition() == i) {
-                    jobsInOrder.add(j);
+                    jobsInOrder[tmp]=j;
+                    tmp++;
                 }
             }
         }

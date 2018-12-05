@@ -1,9 +1,9 @@
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Problem {
 
-    private List<Job> jobList;
+    private Job[] jobList;
     private int numberOfJobs;
     private double h;
     private int sumP ;
@@ -15,7 +15,7 @@ public class Problem {
         return d;
     }
 
-    public Problem(int x, double h, List<Job> jobList)
+    public Problem(int x, double h, Job[] jobList)
     {
         this.jobList=jobList;
         this.numberOfJobs=x;
@@ -25,7 +25,7 @@ public class Problem {
         this.r=0;
     }
 
-    public Problem(int x, double h, List<Job> jobList , int r )
+    public Problem(int x, double h, Job[] jobList , int r )
     {
         this.jobList=jobList;
         this.numberOfJobs=x;
@@ -67,7 +67,7 @@ public class Problem {
         return r;
     }
 
-    public void setJobList(List<Job> jobList) {
+    public void setJobList(Job[] jobList) {
         this.jobList = jobList;
     }
 
@@ -75,7 +75,7 @@ public class Problem {
         return goalFunction;
     }
 
-    public List<Job> getJobList() {
+    public Job[] getJobList() {
         return jobList;
     }
 

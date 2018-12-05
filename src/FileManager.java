@@ -14,12 +14,12 @@ public  class FileManager {
             int numOfProblems = Integer.parseInt(scanner.nextLine().replace(" ", ""));
             for (int i = 0; i < numOfProblems; i++) {
                 int numJobs = Integer.parseInt(scanner.nextLine().replace(" ", ""));
-                ArrayList<Job> listJobs=new ArrayList<>();
+                Job [] listJobs=new Job[numJobs];
                 for (int j = 0; j < numJobs; j++) {
                     String line = scanner.nextLine();
                     String[] parts = line.trim().split("\\s+");
                     Job job = new Job(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]),j);
-                    listJobs.add(job);
+                    listJobs[j]=job;
                 }
                 Problem problem = new Problem(numJobs,h,listJobs);
                 listProblems.add(problem);
@@ -54,8 +54,8 @@ public  class FileManager {
             writer.newLine();
             writer.write(String.valueOf(r));
             writer.newLine();
-            for (int i =1; i<b.getJobList().size()+1 ;i++){
-                writer.write(b.getJobList().get(i-1).toString());
+            for (int i =0; i<b.getJobList().length ;i++){
+                writer.write(b.getJobList()[i].toString());
                 writer.newLine();
             }
             writer.flush();
