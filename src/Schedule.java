@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Schedule {
+public abstract class Schedule implements Runnable{
 
     protected Job[] jobList;
     protected int d;

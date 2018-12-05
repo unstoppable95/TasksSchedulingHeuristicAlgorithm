@@ -12,4 +12,8 @@ public class ScheduleBasic extends Schedule {
     public void makeSchedule(){
 
     }
+
+    public void run(){
+        calculateR();
+    }
 }

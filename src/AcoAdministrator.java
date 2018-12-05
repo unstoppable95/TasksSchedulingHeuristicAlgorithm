@@ -10,7 +10,7 @@ public class AcoAdministrator {
     private int numberOfWinnersTournament=10;
     private int numberOfIterationWithoutImprovement=50000;
     private int totalTimeAlgorithm=0;
-
+    private final Object lock = new Object();
     private LinkedList<Schedule> schedules = new LinkedList<>();
 
     public void metaheuristic(Problem p){
@@ -24,9 +24,11 @@ public class AcoAdministrator {
         //generate random schedules
         for (int i =0 ; i<numOfRandSchedules ; i++){
             Schedule tmpSchedule=new SchedulePunishment(p.getJobList(),d,0);
-            tmpSchedule.makeSchedule();
-            tmpSchedule.calculateR();
-            schedules.add(tmpSchedule);
+            Thread tobj =new Thread(tmpSchedule);
+            tobj.start();
+            synchronized (lock) {
+                schedules.add(tmpSchedule);
+            }
         }
 
         //set current best schedule
@@ -62,10 +64,12 @@ public class AcoAdministrator {
             for (int i =0 ; i<numOfGenerateSchedules ; i++){
                 if(Math.random() < probabilityOfRandom/100 ) {
                     tmpSchedule=new SchedulePunishment(p.getJobList(),d,0);
-                    tmpSchedule.makeSchedule();
-                    tmpSchedule.calculateR();
-                    schedules.add(tmpSchedule);
+                    Thread tobj =new Thread(tmpSchedule);
+                    tobj.start();
 
+                    synchronized (lock) {
+                        schedules.add(tmpSchedule);
+                    }
 
                 }else {
                     int startJobNumber = new Random().nextInt(p.getNumberOfJobs());
@@ -73,8 +77,11 @@ public class AcoAdministrator {
                     Job [] jobsInOrder = makeScheduleWithOrder(jobsOrderPheromoneMatrix,p.getJobList(),p.getNumberOfJobs());
 
                     tmpSchedule=new ScheduleBasic(jobsInOrder,d,0);
-                    tmpSchedule.calculateR();
-                    schedules.add(tmpSchedule);
+                    Thread tobj =new Thread(tmpSchedule);
+                    tobj.start();
+                    synchronized (lock) {
+                        schedules.add(tmpSchedule);
+                    }
 
                 }
             }
@@ -86,16 +93,28 @@ public class AcoAdministrator {
                 for(int i=0; i<3; i++){
 
                     tmpSchedule=new ScheduleBasic(mut.simpleSwap(),d,0);
-                    tmpSchedule.calculateR();
-                    schedules.add(tmpSchedule);
-
                     tmpSchedule2=new ScheduleBasic(mut.maxABSwap(),d,0);
-                    tmpSchedule2.calculateR();
-                    schedules.add(tmpSchedule2);
-
                     tmpSchedule3=new ScheduleBasic(mut.minABSwap(),d,0);
-                    tmpSchedule3.calculateR();
-                    schedules.add(tmpSchedule3);
+
+                    Thread tobj =new Thread(tmpSchedule);
+                    tobj.start();
+
+                    Thread tobj2 =new Thread(tmpSchedule2);
+                    tobj2.start();
+                    Thread tobj3 =new Thread(tmpSchedule3);
+                    tobj3.start();
+
+                    synchronized (lock) {
+                        schedules.add(tmpSchedule);
+                    }
+
+                    synchronized (lock) {
+                        schedules.add(tmpSchedule2);
+                    }
+
+                    synchronized (lock) {
+                        schedules.add(tmpSchedule3);
+                    }
 
                 }
             }

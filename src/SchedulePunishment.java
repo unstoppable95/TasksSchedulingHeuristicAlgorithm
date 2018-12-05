@@ -16,7 +16,10 @@ public class SchedulePunishment extends Schedule {
         this.sortB=new InstanceCompareB();
     }
 
-
+    public void run(){
+        makeSchedule();
+        calculateR();
+    }
     public void makeSchedule(){
 
 
