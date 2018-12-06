@@ -18,7 +18,9 @@ public class ProblemManager {
             List<String> inputFiles=manager.getFilesNames(problemsDirectory);
             double[] tabH = {0.2,0.4,0.6,0.8};
             for (String file :inputFiles){
+                System.out.println("Plik : " + file );
                 for(double h :tabH){
+                    System.out.println("H: " + h );
                     problemList= new ArrayList<>(manager.loadProblemData(file,h));
                     generateSchedulesForFile();
                 }
@@ -47,9 +49,9 @@ public class ProblemManager {
         for (Problem p : problemList) {
             AcoAdministrator aco = new AcoAdministrator();
             aco.metaheuristic(p);
-            System.out.println("Uszeregowanie dla k=" + (problemList.indexOf(p)+1));
+//            System.out.println("Uszeregowanie dla k=" + (problemList.indexOf(p)+1));
             System.out.println(p);
-            System.out.println("Czas metaheurystyki: " + aco.getTotalTimeAlgorithm() + " seconds");
+//            System.out.println("Czas metaheurystyki: " + aco.getTotalTimeAlgorithm() + " seconds");
             manager.saveInstance(String.valueOf(p.getNumberOfJobs()),String.valueOf(problemList.indexOf(p)+1),String.valueOf(Math.round(p.getH()*10)),(int)p.getGoalFunction(),p,String.valueOf(p.getR()), outputDirectory);
             }
         }
@@ -58,9 +60,9 @@ public class ProblemManager {
             AcoAdministrator aco = new AcoAdministrator();
             Problem p =problemList.get(k);
             aco.metaheuristic(p);
-            System.out.println("Uszeregowanie dla k=" + (problemList.indexOf(p)+1));
+//            System.out.println("Uszeregowanie dla k=" + (problemList.indexOf(p)+1));
             System.out.println(p);
-            System.out.println("Czas metaheurystyki: " + aco.getTotalTimeAlgorithm() + " seconds");
+//            System.out.println("Czas metaheurystyki: " + aco.getTotalTimeAlgorithm() + " seconds");
             manager.saveInstance(String.valueOf(p.getNumberOfJobs()),String.valueOf(problemList.indexOf(p)+1),String.valueOf(Math.round(p.getH()*10)),(int)p.getGoalFunction(),p,String.valueOf(p.getR()), outputDirectory);
         }
     }

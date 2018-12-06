@@ -18,6 +18,7 @@ public class SchedulePunishment extends Schedule {
 
     public void run(){
         makeSchedule();
+//        complexCalculateR();
         calculateR();
     }
     public void makeSchedule(){

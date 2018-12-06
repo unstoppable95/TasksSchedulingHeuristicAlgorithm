@@ -49,7 +49,7 @@ public class AcoAdministrator {
         //main loop of metaheuristic
         while(System.currentTimeMillis() - startTime < executionTime )
         {
-            System.out.println(currentIteration );
+//            System.out.println(currentIteration );
 
             currentIteration+=1;
             probabilityOfRandom = (currentIteration %2 ==0) ? probabilityOfRandom-decreaseProbability : probabilityOfRandom;

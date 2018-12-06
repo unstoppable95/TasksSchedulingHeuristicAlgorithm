@@ -46,9 +46,14 @@ public class Problem {
         return sumP;
     }
 
+//    @Override
+//    public String toString() {
+//        return "Funkcja celu " + goalFunction + " h=" + h + " d="+d+ " sumP=" + sumP;
+//    }
+
     @Override
     public String toString() {
-        return "Funkcja celu " + goalFunction + " h=" + h + " d="+d+ " sumP=" + sumP;
+        return "" + goalFunction ;
     }
 
     public void setR(int r) {
