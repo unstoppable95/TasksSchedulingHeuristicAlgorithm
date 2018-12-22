@@ -2,23 +2,24 @@ import java.util.*;
 
 public class AcoAdministrator {
     //metaheuristic parametres
+    private static int START_IMPROVEMENT = 5000;
     private int numOfRandSchedules=30;
-    private int numOfGenerateSchedules=20;
-    private long executionTime =  30000L;
+    private int numOfGenerateSchedulesPerThread=10;
+    private long executionTime =  60000L;
     private double evaporationCoefficient=0.09;
     private double smoothCoefficient=9.0;
-    private int numberOfWinnersTournament=10;
-    private int numberOfIterationWithoutImprovement=50000;
+    private int numberOfWinnersTournament=30;
+    private int numberOfIterationWithoutImprovement=START_IMPROVEMENT;
     private int totalTimeAlgorithm=0;
     private LinkedList<Schedule> schedules = new LinkedList<>();
-
+    private int probabilityOfRandom=100;
 
 
     public void metaheuristic(Problem p){
 
         long startTime = System.currentTimeMillis();
         int currentIteration=0;
-        int probabilityOfRandom=100;
+
         int decreaseProbability;
         if(p.getNumberOfJobs()<500)
         {
@@ -69,27 +70,46 @@ public class AcoAdministrator {
 
             double value;
             Tournament tournament;
+            int MAX_THREAD = Runtime.getRuntime().availableProcessors();
 
-            for (int i =0 ; i<numOfGenerateSchedules ; i++){
-                if(Math.random() < probabilityOfRandom/100 ) {
-                    tmpSchedule=new ScheduleBasic(schedulePunishment.jobList,d,schedulePunishment.r);
-                    tmpSchedule.makeSchedule();
-                    schedules.add(tmpSchedule);
-                }else {
-                    int startJobNumber = new Random().nextInt(p.getNumberOfJobs());
-                    List<Integer> jobsOrderPheromoneMatrix = new ArrayList<>(myMatrix.order(startJobNumber));
-                    Job [] jobsInOrder = makeScheduleWithOrder(jobsOrderPheromoneMatrix,p.getJobList(),p.getNumberOfJobs());
 
-                    tmpSchedule=new ScheduleBasic(jobsInOrder,d,schedulePunishment.r);
-                    schedules.add(tmpSchedule);
+            Thread[] threads = new Thread[MAX_THREAD];
+            for (int t = 0; t < MAX_THREAD; t++) {
+                threads[t] = new Thread(new instanceForACO(schedulePunishment,d,p,myMatrix));
+                threads[t].setDaemon(true);
+                threads[t].start();
+            }
+            for (int t = 0; t < MAX_THREAD; t++) {
+                try {
+                    threads[t].join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
+
+
+
+//            for (int i =0 ; i<numOfGenerateSchedules ; i++){
+//                if(Math.random() < probabilityOfRandom/100 ) {
+//                    tmpSchedule=new ScheduleBasic(schedulePunishment.jobList,d,schedulePunishment.r);
+//                    tmpSchedule.makeSchedule();
+//                    schedules.add(tmpSchedule);
+//                }else {
+//                    int startJobNumber = new Random().nextInt(p.getNumberOfJobs());
+//                    List<Integer> jobsOrderPheromoneMatrix = new ArrayList<>(myMatrix.order(startJobNumber));
+//                    Job [] jobsInOrder = makeScheduleWithOrder(jobsOrderPheromoneMatrix,p.getJobList(),p.getNumberOfJobs());
+//
+//                    tmpSchedule=new ScheduleBasic(jobsInOrder,d,schedulePunishment.r);
+//                    schedules.add(tmpSchedule);
+//                }
+//            }
 
             //mutation of schedules
             int scheduleSize=schedules.size();
 
             for (int k=0; k<scheduleSize; k++){
                 for(int i=0; i<5; i++){
+
                     tmpSchedule=new ScheduleBasic(schedules.get(k).jobList,d,schedulePunishment.r);
                     tmpSchedule.makeSchedule();
                     schedules.add(tmpSchedule);
@@ -118,7 +138,7 @@ public class AcoAdministrator {
                     p.setR(bestMetaheuristic.r);
                     p.setGoalFunction(bestMetaheuristic.goalFunction);
                 }
-                numberOfIterationWithoutImprovement=50000;
+                numberOfIterationWithoutImprovement=START_IMPROVEMENT;
             }
 
             //fill pheromone matrix after tournament and mutation
@@ -166,5 +186,47 @@ public class AcoAdministrator {
         }
     }
 
+    private void addToList(LinkedList<Schedule> list, Schedule instance) {
+        synchronized (this) {
+            list.addFirst(instance);
+        }
+    }
+
+    private class instanceForACO implements Runnable {
+
+        private Schedule schedulePunishment;
+        private int d;
+        private Problem p;
+        private PheromoneMatrix myMatrix;
+
+
+        public instanceForACO(Schedule x,int d, Problem p, PheromoneMatrix matrix){
+            this.schedulePunishment=x;
+            this.d=d;
+            this.p = p;
+            this.myMatrix=matrix;
+
+        }
+
+        @Override
+        public void run() {
+            Schedule tmpSchedule;
+            for (int i = 0; i < numOfGenerateSchedulesPerThread; i++) {
+                if (Math.random() < probabilityOfRandom / 100) {
+                    tmpSchedule = new ScheduleBasic(schedulePunishment.jobList, d, schedulePunishment.r);
+                    tmpSchedule.makeSchedule();
+                   addToList(schedules,tmpSchedule);
+                } else {
+                    int startJobNumber = new Random().nextInt(p.getNumberOfJobs());
+                    List<Integer> jobsOrderPheromoneMatrix = new ArrayList<>(myMatrix.order(startJobNumber));
+                    Job[] jobsInOrder = makeScheduleWithOrder(jobsOrderPheromoneMatrix, p.getJobList(), p.getNumberOfJobs());
+
+                    tmpSchedule = new ScheduleBasic(jobsInOrder, d, schedulePunishment.r);
+                    addToList(schedules,tmpSchedule);
+                }
+            }
+        }
+
+    }
 
 }
