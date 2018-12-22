@@ -2,25 +2,26 @@ import java.util.*;
 
 public class AcoAdministrator {
     //metaheuristic parametres
-    private static int START_IMPROVEMENT = 5000;
-    private int numOfRandSchedules=30;
-    private int numOfGenerateSchedulesPerThread=10;
-    private long executionTime =  60000L;
-    private double evaporationCoefficient=0.09;
-    private double smoothCoefficient=9.0;
-    private int numberOfWinnersTournament=30;
-    private int numberOfIterationWithoutImprovement=START_IMPROVEMENT;
-    private int totalTimeAlgorithm=0;
-    private LinkedList<Schedule> schedules = new LinkedList<>();
+    private static final int START_NUM_WITHOUT_IMPROVEMENT = 5000;
+    private static final long EXECUTION_TIME =  60000L;
+    private static final int NUMBER_OF_WINNERS_TOURNAMENT=30;
+    private static final int NUMBER_OF_START_SCHEDULES=30;
+    private static int NUMBER_OF_SCHEDULES_PER_THREAD=10;
+    private static final double EVAPORATION_COEFFICIENT=0.09;
+    private static final double SMOOTH_COEFFICIENT=0.09;
+    private static final int MAX_THREAD = Runtime.getRuntime().availableProcessors();
     private int probabilityOfRandom=100;
+    private int numberOfIterationWithoutImprovement=START_NUM_WITHOUT_IMPROVEMENT ;
+    private LinkedList<Schedule> schedules = new LinkedList<>();
+    private int totalTimeAlgorithm=0;
+    private int decreaseProbability=0;
 
 
     public void metaheuristic(Problem p){
 
         long startTime = System.currentTimeMillis();
         int currentIteration=0;
-
-        int decreaseProbability;
+        int d = p.getD();
         if(p.getNumberOfJobs()<500)
         {
         decreaseProbability=2;
@@ -28,16 +29,15 @@ public class AcoAdministrator {
         else{
         decreaseProbability=10;
         }
-        int d = p.getD();
 
-        //add sort a b half schedule
+        //add Schedule sort by b-a ; 1st half sort by a ; 2nd by b
         Schedule schedulePunishment=new SchedulePunishment(p.getJobList(),d,0);
         schedulePunishment.makeSchedule();
         schedulePunishment.calculateR();
         schedules.add(schedulePunishment);
 
         //generate random schedules
-        for (int i=0 ; i<numOfRandSchedules ; i++){
+        for (int i=0 ; i<NUMBER_OF_START_SCHEDULES; i++){
             Schedule tmpSchedule;
             tmpSchedule=new ScheduleBasic(schedulePunishment.jobList,d,schedulePunishment.r);
             tmpSchedule.makeSchedule();
@@ -59,57 +59,38 @@ public class AcoAdministrator {
         }
 
         //main loop of metaheuristic
-        while(System.currentTimeMillis() - startTime < executionTime )
+        while(System.currentTimeMillis() - startTime <EXECUTION_TIME )
         {
             System.out.println("Iteracja metaheurystyki " + currentIteration);
+
             currentIteration+=1;
-            probabilityOfRandom = (currentIteration %2 ==0) ? probabilityOfRandom-decreaseProbability : probabilityOfRandom;
-            probabilityOfRandom=(probabilityOfRandom <0 ) ? 0 : probabilityOfRandom;
             Schedule tmpSchedule;
-
-
             double value;
             Tournament tournament;
-            int MAX_THREAD = Runtime.getRuntime().availableProcessors();
 
+            //decrease probability of random scheduler
+            probabilityOfRandom = (currentIteration %2 ==0) ? probabilityOfRandom-decreaseProbability : probabilityOfRandom;
+            probabilityOfRandom=(probabilityOfRandom <0 ) ? 0 : probabilityOfRandom;
 
+            //threads which generate NUMBER_OF_SCHEDULES_PER_THREAD each using random scheduler and pheromone matrix
             Thread[] threads = new Thread[MAX_THREAD];
-            for (int t = 0; t < MAX_THREAD; t++) {
-                threads[t] = new Thread(new instanceForACO(schedulePunishment,d,p,myMatrix));
-                threads[t].setDaemon(true);
-                threads[t].start();
+            for (int i = 0; i < MAX_THREAD; i++) {
+                threads[i] = new Thread(new instanceForACO(schedulePunishment,d,p,myMatrix));
+                threads[i].setDaemon(true);
+                threads[i].start();
             }
-            for (int t = 0; t < MAX_THREAD; t++) {
+            for (int i = 0; i < MAX_THREAD; i++) {
                 try {
-                    threads[t].join();
+                    threads[i].join();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
 
-
-
-//            for (int i =0 ; i<numOfGenerateSchedules ; i++){
-//                if(Math.random() < probabilityOfRandom/100 ) {
-//                    tmpSchedule=new ScheduleBasic(schedulePunishment.jobList,d,schedulePunishment.r);
-//                    tmpSchedule.makeSchedule();
-//                    schedules.add(tmpSchedule);
-//                }else {
-//                    int startJobNumber = new Random().nextInt(p.getNumberOfJobs());
-//                    List<Integer> jobsOrderPheromoneMatrix = new ArrayList<>(myMatrix.order(startJobNumber));
-//                    Job [] jobsInOrder = makeScheduleWithOrder(jobsOrderPheromoneMatrix,p.getJobList(),p.getNumberOfJobs());
-//
-//                    tmpSchedule=new ScheduleBasic(jobsInOrder,d,schedulePunishment.r);
-//                    schedules.add(tmpSchedule);
-//                }
-//            }
-
             //mutation of schedules
-            int scheduleSize=schedules.size();
-
-            for (int k=0; k<scheduleSize; k++){
+            int numberMutations=schedules.size();
+            for (int k=0; k<numberMutations; k++){
                 for(int i=0; i<5; i++){
-
                     tmpSchedule=new ScheduleBasic(schedules.get(k).jobList,d,schedulePunishment.r);
                     tmpSchedule.makeSchedule();
                     schedules.add(tmpSchedule);
@@ -118,27 +99,25 @@ public class AcoAdministrator {
 
             //tournament - leave only number of winners
             tournament = new Tournament(schedules);
-            tournament.makeCompetition(numberOfWinnersTournament);
+            tournament.makeCompetition(NUMBER_OF_WINNERS_TOURNAMENT);
 
+            //calculate new R value for best schedules after tournament
             for (int i=0 ; i< schedules.size() ; i++){
                 schedules.get(i).calculateR();
             }
 
-
             //set current best schedule
             Schedule bestMetaheuristic= Collections.max(schedules,new goalFunctionCompare());
 
-
+            //compare current best schedule with problem schedule
             if( p.getGoalFunction()==bestMetaheuristic.goalFunction){
                 numberOfIterationWithoutImprovement-=1;
             }
-            else{
-                if(p.getGoalFunction()>=bestMetaheuristic.goalFunction){
+            else if (p.getGoalFunction()>=bestMetaheuristic.goalFunction){
                     p.setJobList(bestMetaheuristic.jobList);
                     p.setR(bestMetaheuristic.r);
                     p.setGoalFunction(bestMetaheuristic.goalFunction);
-                }
-                numberOfIterationWithoutImprovement=START_IMPROVEMENT;
+                    numberOfIterationWithoutImprovement=START_NUM_WITHOUT_IMPROVEMENT;
             }
 
             //fill pheromone matrix after tournament and mutation
@@ -148,19 +127,17 @@ public class AcoAdministrator {
             }
 
             //smoothing pheromone matrix
-            myMatrix.smoothMatrix(smoothCoefficient);
+            myMatrix.smoothMatrix(SMOOTH_COEFFICIENT);
 
             //evaporation of pheromone matrix
-            myMatrix.evaporateMatrix(evaporationCoefficient);
+            myMatrix.evaporateMatrix(EVAPORATION_COEFFICIENT);
 
             //check number of iterations without improvement in a row
             if (numberOfIterationWithoutImprovement<=0)   break;
 
         }
 
-        long totalTime=System.currentTimeMillis()-startTime;
-        this.totalTimeAlgorithm=(int)totalTime/1000;
-
+        this.totalTimeAlgorithm=(int)(System.currentTimeMillis()-startTime)/1000;
     }
 
     private Job [] makeScheduleWithOrder(List<Integer> order, Job[] jobs,int size){
@@ -186,9 +163,10 @@ public class AcoAdministrator {
         }
     }
 
-    private void addToList(LinkedList<Schedule> list, Schedule instance) {
+
+    private void addSchedule(LinkedList<Schedule> schedules, Schedule schedule) {
         synchronized (this) {
-            list.addFirst(instance);
+            schedules.addFirst(schedule);
         }
     }
 
@@ -211,18 +189,18 @@ public class AcoAdministrator {
         @Override
         public void run() {
             Schedule tmpSchedule;
-            for (int i = 0; i < numOfGenerateSchedulesPerThread; i++) {
+            for (int i = 0; i < NUMBER_OF_SCHEDULES_PER_THREAD; i++) {
                 if (Math.random() < probabilityOfRandom / 100) {
                     tmpSchedule = new ScheduleBasic(schedulePunishment.jobList, d, schedulePunishment.r);
                     tmpSchedule.makeSchedule();
-                   addToList(schedules,tmpSchedule);
+                    addSchedule(schedules,tmpSchedule);
                 } else {
                     int startJobNumber = new Random().nextInt(p.getNumberOfJobs());
                     List<Integer> jobsOrderPheromoneMatrix = new ArrayList<>(myMatrix.order(startJobNumber));
                     Job[] jobsInOrder = makeScheduleWithOrder(jobsOrderPheromoneMatrix, p.getJobList(), p.getNumberOfJobs());
 
                     tmpSchedule = new ScheduleBasic(jobsInOrder, d, schedulePunishment.r);
-                    addToList(schedules,tmpSchedule);
+                    addSchedule(schedules,tmpSchedule);
                 }
             }
         }

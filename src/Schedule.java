@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public abstract class Schedule {//implements Runnable{
+public abstract class Schedule {
 
     protected Job[] jobList;
     protected int d;
