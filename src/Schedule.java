@@ -52,57 +52,66 @@ public abstract class Schedule {//implements Runnable{
         }
         return result;
     }
-    public void calculateR(){
+
+
+
+    private  int[] calculateEndingTimes(){
+        int[] endingsTime = new int[jobList.length];
+        for(int i=0; i<jobList.length; i++){
+            endingsTime[i] = jobList[i].getP();
+        }
+        return endingsTime;
+    }
+
+    protected  void calculateR(){
         int r = 0;
         int rBest = this.r;
         int fBest = calculateGoalFunction(rBest, jobList);
-
-        while (r<=d) {
-            r++;
+        //int[] endingTimes = calculateEndingTimes();
+        int i=0;
+        while (i < jobList.length && r <= d) {
+            //r+=endingTimes[i];
+           r+=jobList[i].getP();
             int fTmp = calculateGoalFunction(r, jobList);
             if (fTmp < fBest) {
                 fBest = fTmp;
                 rBest = r;
             }
+            i++;
         }
 
         this.r = rBest;
         this.goalFunction = fBest;
     }
 
-    public void complexCalculateR(){
-        int idxMid=(this.jobList.length/2)-1;
-        int timeStart=0;
-        int timeEnd=0;
-
-        for (int i=0;i<idxMid;i++){
-            timeStart+=this.jobList[i].getP();
-        }
-        timeEnd=timeStart+this.jobList[idxMid].getP();
-
-        int r1= Math.max(d-timeEnd,0);
-        int r2=Math.max(d-timeStart,0);
-
-        if(r1!=r2){
-            int r1Goal=calculateGoalFunction(r1,jobList);
-            int r2Goal=calculateGoalFunction(r2,jobList);
-            if(r1Goal>=r2Goal ){
-                this.r=r2;
-                this.goalFunction=r2Goal;
-            }
-            else {
-                this.r=r1;
-                this.goalFunction=r1Goal;
-            }
-        }
-        else {
-            this.r=r1;
-            this.goalFunction=calculateGoalFunction(r1,jobList);
-        }
-
-
-
-
-
-    }
+//    public void complexCalculateR(){
+//        int idxMid=(this.jobList.length/2)-1;
+//        int timeStart=0;
+//        int timeEnd=0;
+//
+//        for (int i=0;i<idxMid;i++){
+//            timeStart+=this.jobList[i].getP();
+//        }
+//        timeEnd=timeStart+this.jobList[idxMid].getP();
+//
+//        int r1= Math.max(d-timeEnd,0);
+//        int r2=Math.max(d-timeStart,0);
+//
+//        if(r1!=r2){
+//            int r1Goal=calculateGoalFunction(r1,jobList);
+//            int r2Goal=calculateGoalFunction(r2,jobList);
+//            if(r1Goal>=r2Goal ){
+//                this.r=r2;
+//                this.goalFunction=r2Goal;
+//            }
+//            else {
+//                this.r=r1;
+//                this.goalFunction=r1Goal;
+//            }
+//        }
+//        else {
+//            this.r=r1;
+//            this.goalFunction=calculateGoalFunction(r1,jobList);
+//        }
+//    }
 }

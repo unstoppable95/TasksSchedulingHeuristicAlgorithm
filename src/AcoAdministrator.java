@@ -113,7 +113,7 @@ public class AcoAdministrator {
             }
             else{
                 if(p.getGoalFunction()>=bestMetaheuristic.goalFunction){
-                    System.out.println("Iteracja " + currentIteration  + " Podmienilem rezultat z  " + p.getGoalFunction() + " na " + bestMetaheuristic.goalFunction);
+                    //System.out.println("Iteracja " + currentIteration  + " Podmienilem rezultat z  " + p.getGoalFunction() + " na " + bestMetaheuristic.goalFunction);
                     p.setJobList(bestMetaheuristic.jobList);
                     p.setR(bestMetaheuristic.r);
                     p.setGoalFunction(bestMetaheuristic.goalFunction);
