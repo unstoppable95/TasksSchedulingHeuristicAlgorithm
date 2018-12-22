@@ -16,47 +16,14 @@ public class SchedulePunishment extends Schedule {
         this.sortB=new InstanceCompareB();
     }
 
-    public void run(){
-        makeSchedule();
-//        complexCalculateR();
-        calculateR();
-    }
+
     public void makeSchedule(){
-
-
         Arrays.sort(this.jobList,sort);
-
-
         Arrays.sort(this.jobList,0,this.jobList.length/2,sortA);
+        Arrays.sort(this.jobList,this.jobList.length/2,this.jobList.length,sortB);
 
-        int firstHalfLength=0;
-        for (int i=0;i<this.jobList.length/2;i++){
-            firstHalfLength+=this.jobList[i].getP();
-        }
-
-        Arrays.sort(this.jobList,this.jobList.length/2,this.jobList.length,sortA);
-
-        int idxJobForSwap;
-        int idxJobForSwap2;
-        for (int i=0;i<5;i++){
-        do{
-            idxJobForSwap=new Random().nextInt(this.jobList.length/2);
-            idxJobForSwap2=new Random().nextInt(this.jobList.length/2);
-        }
-        while(idxJobForSwap==idxJobForSwap2);
-        Mutation.swap(this.jobList, idxJobForSwap, idxJobForSwap2);
-            do{
-                idxJobForSwap=new Random().nextInt(this.jobList.length/2)+this.jobList.length/2;
-                idxJobForSwap2=new Random().nextInt(this.jobList.length/2)+this.jobList.length/2;
-            }
-            while(idxJobForSwap==idxJobForSwap2);
-            Mutation.swap(this.jobList, idxJobForSwap, idxJobForSwap2);
-        }
         this.goalFunction=calculateGoalFunction(this.r,this.jobList);
-
     }
-
-
 
     private class InstanceCompare implements Comparator<Job> {
         public int compare(Job a, Job b) {
@@ -81,13 +48,5 @@ public class SchedulePunishment extends Schedule {
             else return 0;
         }
     }
-
-//    private class goalFunctionCompare implements Comparator<Schedule> {
-//        public int compare(Schedule a, Schedule b) {
-//            if (a.goalFunction < b.goalFunction) return 1;
-//            if (a.goalFunction > b.goalFunction) return -1;
-//            else return 0;
-//        }
-//    }
 
 }

@@ -10,10 +10,8 @@ public class ScheduleBasic extends Schedule {
     }
 
     public void makeSchedule(){
-
+       simpleSwap();
     }
 
-    public void run(){
-        calculateR();
-    }
+
 }

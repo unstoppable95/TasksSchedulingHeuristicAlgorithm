@@ -6,7 +6,7 @@ public class ProjectMain {
         String inputDir="ProblemFiles";
 
         ProblemManager problems = new ProblemManager(inputDir,outputDir);
-        problems.readFromFile();
+        problems.readFromFile(0.4,1000, 2);
 
         SolutionChecker sol = new SolutionChecker();
         sol.checkSolutions(sol.getFiles(outputDir));

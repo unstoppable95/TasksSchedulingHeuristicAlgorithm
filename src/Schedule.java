@@ -1,7 +1,8 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-public abstract class Schedule implements Runnable{
+public abstract class Schedule {//implements Runnable{
 
     protected Job[] jobList;
     protected int d;
@@ -10,6 +11,32 @@ public abstract class Schedule implements Runnable{
 
     public abstract void makeSchedule();
 
+    private static final <T> void swap (T[] a, int i, int j) {
+        T t = a[i];
+        a[i] = a[j];
+        a[j] = t;
+    }
+
+    public Job[] simpleSwap() {
+        int idxJobForSwap;
+        int idxJobForSwap2;
+        Job[] swapList = jobList;
+
+        idxJobForSwap = new Random().nextInt(this.jobList.length);
+        idxJobForSwap2 = new Random().nextInt(this.jobList.length);
+
+        if (idxJobForSwap == idxJobForSwap2 && idxJobForSwap != jobList.length - 1){
+            idxJobForSwap2 = idxJobForSwap + 1;
+        }
+        if (idxJobForSwap == idxJobForSwap2 && idxJobForSwap == jobList.length - 1) {
+            idxJobForSwap = jobList.length - 2;
+            idxJobForSwap2 = jobList.length - 1;
+        }
+
+        swap(swapList, idxJobForSwap, idxJobForSwap2);
+
+        return swapList;
+    }
 
     public int calculateGoalFunction(int r,Job[] jobList) {
         List<Integer> endTimeJob = new ArrayList<>();
@@ -27,20 +54,20 @@ public abstract class Schedule implements Runnable{
     }
     public void calculateR(){
         int r = 0;
-        int r_best = this.r;
-        int f_best = calculateGoalFunction(r_best, jobList);
+        int rBest = this.r;
+        int fBest = calculateGoalFunction(rBest, jobList);
 
         while (r<=d) {
             r++;
-            int f_tmp = calculateGoalFunction(r, jobList);
-            if (f_tmp < f_best) {
-                f_best = f_tmp;
-                r_best = r;
+            int fTmp = calculateGoalFunction(r, jobList);
+            if (fTmp < fBest) {
+                fBest = fTmp;
+                rBest = r;
             }
         }
 
-        this.r = r_best;
-        this.goalFunction = f_best;
+        this.r = rBest;
+        this.goalFunction = fBest;
     }
 
     public void complexCalculateR(){
