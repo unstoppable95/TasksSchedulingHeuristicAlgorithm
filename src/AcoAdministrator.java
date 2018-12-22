@@ -4,7 +4,7 @@ public class AcoAdministrator {
     //metaheuristic parametres
     private int numOfRandSchedules=30;
     private int numOfGenerateSchedules=20;
-    private long executionTime =  60000L;
+    private long executionTime =  30000L;
     private double evaporationCoefficient=0.09;
     private double smoothCoefficient=9.0;
     private int numberOfWinnersTournament=10;
@@ -38,9 +38,8 @@ public class AcoAdministrator {
         //generate random schedules
         for (int i=0 ; i<numOfRandSchedules ; i++){
             Schedule tmpSchedule;
-            tmpSchedule=new ScheduleBasic(schedulePunishment.jobList,d,0);
+            tmpSchedule=new ScheduleBasic(schedulePunishment.jobList,d,schedulePunishment.r);
             tmpSchedule.makeSchedule();
-            tmpSchedule.calculateR();
             schedules.add(tmpSchedule);
         }
 
@@ -73,17 +72,15 @@ public class AcoAdministrator {
 
             for (int i =0 ; i<numOfGenerateSchedules ; i++){
                 if(Math.random() < probabilityOfRandom/100 ) {
-                    tmpSchedule=new ScheduleBasic(schedulePunishment.jobList,d,0);
+                    tmpSchedule=new ScheduleBasic(schedulePunishment.jobList,d,schedulePunishment.r);
                     tmpSchedule.makeSchedule();
-                    tmpSchedule.calculateR();
                     schedules.add(tmpSchedule);
                 }else {
                     int startJobNumber = new Random().nextInt(p.getNumberOfJobs());
                     List<Integer> jobsOrderPheromoneMatrix = new ArrayList<>(myMatrix.order(startJobNumber));
                     Job [] jobsInOrder = makeScheduleWithOrder(jobsOrderPheromoneMatrix,p.getJobList(),p.getNumberOfJobs());
 
-                    tmpSchedule=new ScheduleBasic(jobsInOrder,d,0);
-                    tmpSchedule.calculateR();
+                    tmpSchedule=new ScheduleBasic(jobsInOrder,d,schedulePunishment.r);
                     schedules.add(tmpSchedule);
                 }
             }
@@ -93,9 +90,8 @@ public class AcoAdministrator {
 
             for (int k=0; k<scheduleSize; k++){
                 for(int i=0; i<5; i++){
-                    tmpSchedule=new ScheduleBasic(schedules.get(k).jobList,d,0);
+                    tmpSchedule=new ScheduleBasic(schedules.get(k).jobList,d,schedulePunishment.r);
                     tmpSchedule.makeSchedule();
-                    tmpSchedule.calculateR();
                     schedules.add(tmpSchedule);
                 }
             }
@@ -104,16 +100,20 @@ public class AcoAdministrator {
             tournament = new Tournament(schedules);
             tournament.makeCompetition(numberOfWinnersTournament);
 
+            for (int i=0 ; i< schedules.size() ; i++){
+                schedules.get(i).calculateR();
+            }
+
+
             //set current best schedule
             Schedule bestMetaheuristic= Collections.max(schedules,new goalFunctionCompare());
-            bestMetaheuristic.calculateR();
+
 
             if( p.getGoalFunction()==bestMetaheuristic.goalFunction){
                 numberOfIterationWithoutImprovement-=1;
             }
             else{
                 if(p.getGoalFunction()>=bestMetaheuristic.goalFunction){
-                    //System.out.println("Iteracja " + currentIteration  + " Podmienilem rezultat z  " + p.getGoalFunction() + " na " + bestMetaheuristic.goalFunction);
                     p.setJobList(bestMetaheuristic.jobList);
                     p.setR(bestMetaheuristic.r);
                     p.setGoalFunction(bestMetaheuristic.goalFunction);

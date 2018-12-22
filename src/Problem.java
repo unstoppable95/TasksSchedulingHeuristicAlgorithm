@@ -53,7 +53,7 @@ public class Problem {
 
     @Override
     public String toString() {
-        return "" + goalFunction ;
+        return "" + (int)goalFunction ;
     }
 
     public void setR(int r) {
