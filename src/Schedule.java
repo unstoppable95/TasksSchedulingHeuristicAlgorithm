@@ -17,10 +17,10 @@ public abstract class Schedule {
         a[j] = t;
     }
 
-    public Job[] simpleSwap() {
+    public void simpleSwap() {
         int idxJobForSwap;
         int idxJobForSwap2;
-        Job[] swapList = jobList;
+
 
         idxJobForSwap = new Random().nextInt(this.jobList.length);
         idxJobForSwap2 = new Random().nextInt(this.jobList.length);
@@ -33,10 +33,11 @@ public abstract class Schedule {
             idxJobForSwap2 = jobList.length - 1;
         }
 
-        swap(swapList, idxJobForSwap, idxJobForSwap2);
+        swap(jobList, idxJobForSwap, idxJobForSwap2);
 
-        return swapList;
     }
+
+
 
     public int calculateGoalFunction(int r,Job[] jobList) {
         List<Integer> endTimeJob = new ArrayList<>();

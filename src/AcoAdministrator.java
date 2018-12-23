@@ -2,19 +2,16 @@ import java.util.*;
 
 public class AcoAdministrator {
     //metaheuristic parametres
-    private static final int START_NUM_WITHOUT_IMPROVEMENT = 5000;
     private static final long EXECUTION_TIME =  60000L;
-    private static final int NUMBER_OF_WINNERS_TOURNAMENT=30;
+    private static final int NUMBER_OF_WINNERS_TOURNAMENT=40;
     private static final int NUMBER_OF_START_SCHEDULES=30;
     private static int NUMBER_OF_SCHEDULES_PER_THREAD=10;
     private static final double EVAPORATION_COEFFICIENT=0.09;
     private static final double SMOOTH_COEFFICIENT=0.09;
     private static final int MAX_THREAD = Runtime.getRuntime().availableProcessors();
     private int probabilityOfRandom=100;
-    private int numberOfIterationWithoutImprovement=START_NUM_WITHOUT_IMPROVEMENT ;
     private LinkedList<Schedule> schedules = new LinkedList<>();
-    private int totalTimeAlgorithm=0;
-    private int decreaseProbability=0;
+    private int decreaseProbability=1;
 
 
     public void metaheuristic(Problem p){
@@ -22,13 +19,14 @@ public class AcoAdministrator {
         long startTime = System.currentTimeMillis();
         int currentIteration=0;
         int d = p.getD();
-        if(p.getNumberOfJobs()<500)
-        {
-        decreaseProbability=2;
-        }
+        int startNumWithoutImprovement=0;
+        if(p.getNumberOfJobs()>=500){
+            startNumWithoutImprovement = 50;}
         else{
-        decreaseProbability=10;
+            startNumWithoutImprovement=250;
         }
+
+        int numberOfIterationWithoutImprovement=startNumWithoutImprovement;
 
         //add Schedule sort by b-a ; 1st half sort by a ; 2nd by b
         Schedule schedulePunishment=new SchedulePunishment(p.getJobList(),d,0);
@@ -61,10 +59,9 @@ public class AcoAdministrator {
         //main loop of metaheuristic
         while(System.currentTimeMillis() - startTime <EXECUTION_TIME )
         {
-            System.out.println("Iteracja metaheurystyki " + currentIteration);
+
 
             currentIteration+=1;
-            Schedule tmpSchedule;
             double value;
             Tournament tournament;
 
@@ -86,16 +83,6 @@ public class AcoAdministrator {
                     e.printStackTrace();
                 }
             }
-
-            //mutation of schedules
-//            int numberMutations=schedules.size();
-//            for (int k=0; k<numberMutations; k++){
-//                for(int i=0; i<5; i++){
-//                    tmpSchedule=new ScheduleBasic(schedules.get(k).jobList,d,schedulePunishment.r);
-//                    tmpSchedule.makeSchedule();
-//                    schedules.add(tmpSchedule);
-//                }
-//            }
 
             //mutation of schedules threads
             int numberMutations=schedules.size();
@@ -149,7 +136,7 @@ public class AcoAdministrator {
                     p.setJobList(bestMetaheuristic.jobList);
                     p.setR(bestMetaheuristic.r);
                     p.setGoalFunction(bestMetaheuristic.goalFunction);
-                    numberOfIterationWithoutImprovement=START_NUM_WITHOUT_IMPROVEMENT;
+                    numberOfIterationWithoutImprovement=startNumWithoutImprovement;
             }
 
             //fill pheromone matrix after tournament and mutation
@@ -169,7 +156,8 @@ public class AcoAdministrator {
 
         }
 
-        this.totalTimeAlgorithm=(int)(System.currentTimeMillis()-startTime)/1000;
+        int totalTimeAlgorithm=(int)(System.currentTimeMillis()-startTime)/1000;
+        System.out.println("Czas: " + totalTimeAlgorithm);
     }
 
     private Job [] makeScheduleWithOrder(List<Integer> order, Job[] jobs,int size){
