@@ -75,7 +75,7 @@ public class AcoAdministrator {
             //threads which generate NUMBER_OF_SCHEDULES_PER_THREAD each using random scheduler and pheromone matrix
             Thread[] threads = new Thread[MAX_THREAD];
             for (int i = 0; i < MAX_THREAD; i++) {
-                threads[i] = new Thread(new instanceForACO(schedulePunishment,d,p,myMatrix));
+                threads[i] = new Thread(new scheduleForACO(schedulePunishment,d,p,myMatrix));
                 threads[i].setDaemon(true);
                 threads[i].start();
             }
@@ -88,14 +88,46 @@ public class AcoAdministrator {
             }
 
             //mutation of schedules
+//            int numberMutations=schedules.size();
+//            for (int k=0; k<numberMutations; k++){
+//                for(int i=0; i<5; i++){
+//                    tmpSchedule=new ScheduleBasic(schedules.get(k).jobList,d,schedulePunishment.r);
+//                    tmpSchedule.makeSchedule();
+//                    schedules.add(tmpSchedule);
+//                }
+//            }
+
+            //mutation of schedules threads
             int numberMutations=schedules.size();
-            for (int k=0; k<numberMutations; k++){
-                for(int i=0; i<5; i++){
-                    tmpSchedule=new ScheduleBasic(schedules.get(k).jobList,d,schedulePunishment.r);
-                    tmpSchedule.makeSchedule();
-                    schedules.add(tmpSchedule);
+            int [] idxStart = new int[MAX_THREAD];
+            int [] idxStop = new int[MAX_THREAD];
+            int start=0;
+            int range =(int) Math.ceil(numberMutations/MAX_THREAD);
+            for (int i=0;i<MAX_THREAD;i++){
+                if(i!=MAX_THREAD-1) {
+                    idxStart[i] = start;
+                    idxStop[i] = start + range;
+                    start += range;
+                }
+                if (i==MAX_THREAD-1){
+                    idxStart[i] = start;
+                    idxStop[i]=numberMutations-1;
                 }
             }
+
+            for (int i = 0; i < MAX_THREAD; i++) {
+                threads[i] = new Thread(new mutationForACO(schedulePunishment,d,idxStart[i],idxStop[i]));
+                threads[i].setDaemon(true);
+                threads[i].start();
+            }
+            for (int i = 0; i < MAX_THREAD; i++) {
+                try {
+                    threads[i].join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
 
             //tournament - leave only number of winners
             tournament = new Tournament(schedules);
@@ -166,11 +198,48 @@ public class AcoAdministrator {
 
     private void addSchedule(LinkedList<Schedule> schedules, Schedule schedule) {
         synchronized (this) {
-            schedules.addFirst(schedule);
+            schedules.add(schedule);
         }
     }
 
-    private class instanceForACO implements Runnable {
+    private void addListSchedule(LinkedList<Schedule> schedules, LinkedList<Schedule> schedule) {
+        synchronized (this) {
+            schedules.addAll(schedule);
+        }
+    }
+
+    private class mutationForACO implements Runnable{
+
+        private int fromIdx;
+        private int toIdx;
+        private Schedule schedulePunishment;
+        private int d;
+
+        public mutationForACO(Schedule x,int d,int start,int stop){
+            this.schedulePunishment=x;
+            this.d=d;
+            this.fromIdx=start;
+            this.toIdx=stop;
+
+        }
+
+        @Override
+        public void run(){
+            Schedule tmpSchedule;
+            LinkedList<Schedule> tmpList = new LinkedList<>();
+            for (int k =fromIdx;k<=toIdx; k++) {
+                for (int i = 0; i < 5; i++) {
+                    tmpSchedule = new ScheduleBasic(schedules.get(k).jobList, d, schedulePunishment.r);
+                    tmpSchedule.makeSchedule();
+                    tmpList.add(tmpSchedule);
+                }
+            }
+            addListSchedule(schedules, tmpList);
+        }
+
+    }
+
+    private class scheduleForACO implements Runnable {
 
         private Schedule schedulePunishment;
         private int d;
@@ -178,7 +247,7 @@ public class AcoAdministrator {
         private PheromoneMatrix myMatrix;
 
 
-        public instanceForACO(Schedule x,int d, Problem p, PheromoneMatrix matrix){
+        public scheduleForACO(Schedule x,int d, Problem p, PheromoneMatrix matrix){
             this.schedulePunishment=x;
             this.d=d;
             this.p = p;
